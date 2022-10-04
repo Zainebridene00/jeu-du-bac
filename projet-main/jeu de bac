@@ -1,0 +1,246 @@
+#include <iostream>
+#include<fstream>
+#include<cstdlib>
+#include<ctime>
+#include<string>
+
+#include<map>
+#include<algorithm>
+
+
+
+using namespace std;
+
+
+class joueur {
+private :
+            string nom;
+            int score;
+
+public :
+            joueur (int s=0):score(s)
+                    {
+
+                            cout<<"\t \t \t --------------Avant de commencer----------- \n"<<endl;
+                            cout<< " \t \t \t Entrez votre pseudo nom ";
+                            cin >> nom ;
+
+                    }
+
+
+                    void  verif(char c,string motsaisie,string nomfichier)//methode qui verifie lexistance d'un mot dans un fichier
+                    {
+                string ligne;
+                for (int i=0; i<motsaisie.size() ; i++)
+                                motsaisie[i]=toupper(motsaisie[i]);
+
+
+                if (c==motsaisie[0])
+                        { ifstream dict(nomfichier , ios::in);
+                        if(!dict)
+                                {
+                                    cout<<"ouverture impossible"<<endl;
+                                }
+                        else
+                                {
+                                    while (getline(dict,ligne)){
+                                        for (int i=0; i<ligne.size() ; i++)
+                                            ligne[i]=toupper(ligne[i]);
+
+
+                                        calcul_score(ligne,motsaisie);
+                                        }
+                                    dict.close();
+                                }
+                        }
+                }
+
+           int  calcul_score(string mot1,string mot2)
+
+                {
+                            if (mot1==mot2)
+                              {score++;};
+                            return (score);}
+            int get_score() const
+                { return score;}
+            string get_nom (){return nom;}
+            ~joueur(){}
+
+        };
+
+bool nombre_joueurs( int & n )//fonction qui assure le controle de saisie du nombre des joueurs.
+{
+    cout << "\t \t \t Entrez le nombre des joueurs (entre 1 et 7) : " ;
+    while ( ! ( cin >> n ) || n < 1 || n > 7 )
+    {
+
+        if ( cin.eof() )
+        {
+            // ^D  (^Z sous windows); Fin du flux d'entree !
+            return false;
+        }
+        else if ( cin.fail() )
+        {
+            cout << "\t \t \t Saisie incorrecte, recommencez : ";
+            cin.clear();
+            cin.ignore( numeric_limits<streamsize>::max(), '\n' );
+        }
+        else
+        {
+            cout << "\t \t \t Le chiffre n'est pas entre 1 et 7, recommencez : ";
+        }
+    }
+    return true; // succès
+}
+
+int main() {
+int n;//nbre de joueurs.
+clock_t temps;//sert a compter le temps necessaire émis pour repondre.
+clock_t debut;//sert a compter le temps necessaire émis pour repondre.
+char alphabet;
+map<string,int> j;// map a pour cle le nom du joueru et pour valeur son score.
+string theme;
+cout<<"\t \t \t *******Bienvenu au jeu du petit bac********Amusez-vous******** \n \n"<<endl;
+cout<<"\t \t \t \t ****************Comment jouer?**************** \n"<<endl;
+cout<<"Le principe du Jeu du Bac consiste a selectionner une lettre au hasard par la machine et vous devez trouvez, \npour chacune des 6 categories proposees du theme choisi par vous-meme, un mot commençant par cette lettre dans moins de 20 secondes. \nLe vainqueur est celui qui donne le maximum de bonnes réponses en un temps minimum ! \n \n \n"<<endl;
+nombre_joueurs(n);
+
+do{
+cout << "\t Choisir votre theme prefere : Art - Sport - Nature - Aliments - Culture generale - Langue : " ;
+cin >> theme ;
+for (int i=0; i<theme.size() ; i++)//pour verifier l'entree correcte de l'un des themes existants
+       theme[i]=tolower(theme[i]);
+
+}while ((theme!="art") && (theme!="nature") && (theme!="aliments") && (theme!="sport") && (theme!="langue") && (theme!="culture"));
+cout<<"\n \n"<<endl;
+srand(time(NULL)); //La fonction srand initialise le générateur de nombres pseudo-aléatoire
+alphabet= rand() % (90-65+1) + 65;
+cout<<"\t \t \t \t la lettre choisie est "<<alphabet<<"\n"<<endl;
+
+cout<<"\t \t \t ***************************************** \n  "<<endl;
+
+string categorie[5];
+string reponse[5];
+
+if (theme=="sport")
+{ categorie[0]="Type de sport";
+  categorie[1]="Nom de joueur";
+  categorie[2]="Nom d'equipe" ;
+  categorie[3]="Nom de competition";
+  categorie[4]="Nom d'un entraineur";} ;
+if (theme=="nature")
+{ categorie[0]="Nom d'animal";
+  categorie[1]="Race de chat";
+  categorie[2]="Race de chien" ;
+  categorie[3]="Nom de plante";
+  categorie[4]="Voix d'un animal";}
+else if (theme=="art")
+   { categorie[0]="Nom d'acteur" ;
+     categorie[1]="Nom de serie" ;
+     categorie[2]="Instrument de musique" ;
+     categorie[3]="Nom de film";
+     categorie[4]="Nom de chanteur";
+               }
+else if (theme=="aliments")
+{ categorie[0]="Nom de boisson";
+  categorie[1]="Nom de dessert";
+  categorie[2]="Nom de fruit" ;
+  categorie[3]="Nom de legumes";
+  categorie[4]="Nom de fromage";}
+else if (theme=="culture")
+{ categorie[0]="Nom d'un metier";
+  categorie[1]="Nom d'un outil";
+  categorie[2]="Nom du pays" ;
+  categorie[3]="Nom du capitale";
+  categorie[4]="Partie du corps";}
+else if (theme=="langue")
+{ categorie[0]="Verbe";
+  categorie[1]="Qualité-Defaut";
+  categorie[2]="Adverbe" ;
+  categorie[3]="Prenom";
+  categorie[4]="Couleur";};
+
+
+
+for (int i=0;i<n;i++)//pour faire le tour
+{
+    joueur joueur1;
+string ch;
+    for (int i=0;i<5;i++)// chaque joueur doit entrer une reponse dans moins de 20 secondes sinon elle ne sera pas enregistree.
+        {
+            cout<<categorie[i]<<endl;
+            debut=clock();//debut du temps de saisie
+            cin>>ch;
+            temps=clock();//fin du temps de saisie
+            if (((temps-debut)/CLOCKS_PER_SEC)<20)//duree de saisie
+                reponse[i]=ch;
+            else cout<<"votre reponse ne sera pas enregistrée"<<endl;
+        } ;
+    if (theme=="art")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"acteur.txt");
+            joueur1.verif(alphabet,reponse[1],"series.txt");
+            joueur1.verif(alphabet,reponse[2],"instruments.txt");
+            joueur1.verif(alphabet,reponse[3],"films.txt");
+            joueur1.verif(alphabet,reponse[4],"chanteurs.txt");
+        }
+    else if (theme=="sport")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"sport.txt");
+            joueur1.verif(alphabet,reponse[1],"joueurs.txt");
+            joueur1.verif(alphabet,reponse[2],"equipe.txt");
+            joueur1.verif(alphabet,reponse[3],"competition.txt");
+            joueur1.verif(alphabet,reponse[4],"entraineurs.txt");
+        }
+    else if (theme=="nature")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"animaux.txt");
+            joueur1.verif(alphabet,reponse[1],"racedechats.txt");
+            joueur1.verif(alphabet,reponse[2],"racedechiens.txt");
+            joueur1.verif(alphabet,reponse[3],"plante.txt");
+            joueur1.verif(alphabet,reponse[4],"Cris.txt");
+        }
+    else if (theme=="culture")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"metier.txt");
+            joueur1.verif(alphabet,reponse[1],"objet.txt");
+            joueur1.verif(alphabet,reponse[2],"pays.txt");
+            joueur1.verif(alphabet,reponse[3],"capital.txt");
+            joueur1.verif(alphabet,reponse[4],"anatomie.txt");
+        }
+    else if (theme=="aliments")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"boissons.txt");
+            joueur1.verif(alphabet,reponse[1],"desserts.txt");
+            joueur1.verif(alphabet,reponse[2],"fruits.txt");
+            joueur1.verif(alphabet,reponse[3],"legumes.txt");
+            joueur1.verif(alphabet,reponse[4],"fromage.txt");
+        }
+    else if (theme=="langue")
+        {
+
+            joueur1.verif(alphabet,reponse[0],"Verbe.txt");
+            joueur1.verif(alphabet,reponse[1],"QuaDef.txt");
+            joueur1.verif(alphabet,reponse[2],"adverbe.txt");
+            joueur1.verif(alphabet,reponse[3],"prenoms.txt");
+            joueur1.verif(alphabet,reponse[4],"couleur.txt");
+        }
+
+    cout<< " \t \t \t Le score du joueur " << joueur1.get_nom()<< " est "<< joueur1.get_score()<<"\n \n"<<endl;//affichage du nom et du score de chaque joueur a la fin de son tour
+
+    j[joueur1.get_nom()]=joueur1.get_score();//remplire la map pour avoir le meilleure score
+
+}
+
+cout<<"\t \t \t --------------SCORE FINAL--------------- \n \n "<<endl;
+map<string,int>::iterator best
+        = max_element(j.begin(),j.end(),[] (const pair<string,int>& a, const pair<string,int>& b)->bool{ return a.second < b.second; } );//La recherche  du meilleur score
+    cout << "\t \t \t Le gagnant est "<< best->first << " avec un score  " << best->second << "\n";
+        return (0);
+
+ }
